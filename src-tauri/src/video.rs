@@ -62,16 +62,12 @@ impl StreamManager {
             None
         });
         let convert = gst::ElementFactory::make("videoconvert").build().map_err(|_| "playback_runtime_missing_video_convert".to_string())?;
-        let rate = gst::ElementFactory::make("videorate").build().map_err(|_| "playback_runtime_missing_video_rate".to_string())?;
-        let caps_filter = gst::ElementFactory::make("capsfilter")
-            .property("caps", gst::Caps::builder("video/x-raw").field("framerate", gst::Fraction::new(10, 1)).build())
-            .build().map_err(|_| "playback_runtime_missing_caps_filter".to_string())?;
         let jpeg = gst::ElementFactory::make("jpegenc").property("quality", 72i32).build()
             .map_err(|_| "playback_runtime_missing_jpeg_encoder".to_string())?;
         let frames = AppSink::builder().sync(false).max_buffers(1).property("drop", true).build();
-        pipeline.add_many([&decoder, &convert, &rate, &caps_filter, &jpeg, frames.upcast_ref()])
+        pipeline.add_many([&decoder, &convert, &jpeg, frames.upcast_ref()])
             .map_err(|_| "playback_pipeline_setup_failed".to_string())?;
-        gst::Element::link_many([&convert, &rate, &caps_filter, &jpeg, frames.upcast_ref()])
+        gst::Element::link_many([&convert, &jpeg, frames.upcast_ref()])
             .map_err(|_| "playback_pipeline_link_failed".to_string())?;
 
         let convert_sink = convert.static_pad("sink").ok_or_else(|| "playback_video_pad_missing".to_string())?;
@@ -83,7 +79,8 @@ impl StreamManager {
             }
         });
 
-        let (sender, _) = broadcast::channel(3);
+        // Keep only the newest frame so slow viewers do not accumulate stale video.
+        let (sender, _) = broadcast::channel(1);
         let state = Arc::new(Mutex::new("connecting".to_string()));
         let frame_sender = sender.clone();
         let frame_state = state.clone();

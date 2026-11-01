@@ -288,7 +288,14 @@ async fn mjpeg_stream(
         return empty_response(StatusCode::NOT_FOUND, origin);
     };
     let stream = async_stream::stream! {
-        while let Ok(frame) = receiver.recv().await {
+        loop {
+            let frame = match receiver.recv().await {
+                Ok(frame) => frame,
+                // A slow browser can fall behind the one-frame live buffer.
+                // Tokio advances the receiver; keep streaming from the next frame.
+                Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => continue,
+                Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+            };
             let prefix = format!("--frame\r\nContent-Type: image/jpeg\r\nContent-Length: {}\r\n\r\n", frame.len());
             yield Ok::<Bytes, std::convert::Infallible>(Bytes::from(prefix));
             yield Ok(Bytes::from(frame));

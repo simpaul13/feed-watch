@@ -449,6 +449,7 @@ function CameraTile({
           combined.set(pending);
           combined.set(value, pending.length);
           pending = combined;
+          let latestFrame: Uint8Array | null = null;
 
           while (active) {
             const end = findByteSequence(pending, headerEnd);
@@ -465,7 +466,11 @@ function CameraTile({
 
             const frame = pending.slice(frameStart, frameEnd);
             pending = pending.slice(frameEnd + 2);
-            const nextUrl = URL.createObjectURL(new Blob([frame.buffer as ArrayBuffer], { type: "image/jpeg" }));
+            latestFrame = frame;
+          }
+
+          if (latestFrame) {
+            const nextUrl = URL.createObjectURL(new Blob([latestFrame.buffer as ArrayBuffer], { type: "image/jpeg" }));
             const previousUrl = objectUrlRef.current;
             objectUrlRef.current = nextUrl;
             image.onload = () => {
