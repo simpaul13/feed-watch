@@ -204,27 +204,34 @@ function App() {
   };
 
   const changeStream = async (camera: CameraPreference, stream: StreamKind) => {
-    if (camera.stream === stream) return;
-    const updated = settings.cameras.map((item) =>
-      item.channel === camera.channel ? { ...item, stream } : item,
-    );
-    setSettings((current) => ({ ...current, cameras: updated }));
-    setStatuses((current) => ({ ...current, [camera.channel]: "connecting" }));
+    if (camera.stream === stream) return true;
     if (desktop) {
-      await invoke("set_channel_stream", { update: { channel: camera.channel, stream } }).catch((error) => {
+      try {
+        await invoke("set_channel_stream", { update: { channel: camera.channel, stream } });
+      } catch (error) {
         setConnectionError(normalizeError(String(error)));
-      });
+        return false;
+      }
     }
+
+    setSettings((current) => ({
+      ...current,
+      cameras: current.cameras.map((item) =>
+        item.channel === camera.channel ? { ...item, stream } : item,
+      ),
+    }));
+    setStatuses((current) => ({ ...current, [camera.channel]: "connecting" }));
+    return true;
   };
 
   const expandCamera = async (camera: CameraPreference) => {
     if (expandedChannel === camera.channel) {
+      if (!await changeStream(camera, "sub")) return;
       setExpandedChannel(null);
-      await changeStream(camera, "sub");
       return;
     }
+    if (!await changeStream(camera, "main")) return;
     setExpandedChannel(camera.channel);
-    await changeStream(camera, "main");
   };
 
   const retry = async () => {
