@@ -6,7 +6,6 @@ import {
   Check,
   ChevronDown,
   CircleHelp,
-  Expand,
   Eye,
   EyeOff,
   GripVertical,
@@ -520,10 +519,22 @@ function CameraTile({
             <button className="tile-control stream-trigger" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label="Choose stream"><span>{camera.stream === "main" ? "Main" : "Sub"}</span><ChevronDown size={12} /></button>
             {menuOpen && <div className="stream-menu" role="menu"><button role="menuitem" className={camera.stream === "main" ? "active" : ""} onClick={() => { onStreamChange("main"); setMenuOpen(false); }}>Main Stream</button><button role="menuitem" className={camera.stream === "sub" ? "active" : ""} onClick={() => { onStreamChange("sub"); setMenuOpen(false); }}>Sub Stream 1</button></div>}
           </div>
-          <button className="tile-control" onClick={onExpand} aria-label={expanded ? "Return to grid" : "Expand camera"}><Expand size={13} /></button>
         </div>
       </div>
-      <div className="tile-video">
+      <div
+        className="tile-video"
+        role="button"
+        tabIndex={0}
+        aria-label={expanded ? `Return ${camera.label} to the camera grid` : `Expand ${camera.label}`}
+        title={expanded ? "Double-click to return to the camera grid" : "Double-click to expand camera"}
+        onDoubleClick={onExpand}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            onExpand();
+          }
+        }}
+      >
         <img ref={imageRef} className={`feed-image ${imageLoaded ? "visible" : ""}`} alt={`${camera.label} live feed`} />
         {!imageLoaded && <div className="tile-offline">
           {status === "connecting" ? <LoaderCircle className="spin" size={18} /> : <SignalZero size={19} />}
