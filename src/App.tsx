@@ -224,14 +224,8 @@ function App() {
     return true;
   };
 
-  const expandCamera = async (camera: CameraPreference) => {
-    if (expandedChannel === camera.channel) {
-      if (!await changeStream(camera, "sub")) return;
-      setExpandedChannel(null);
-      return;
-    }
-    if (!await changeStream(camera, "main")) return;
-    setExpandedChannel(camera.channel);
+  const expandCamera = (camera: CameraPreference) => {
+    setExpandedChannel((current) => current === camera.channel ? null : camera.channel);
   };
 
   const retry = async () => {

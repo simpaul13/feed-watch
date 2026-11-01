@@ -104,7 +104,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .toolbar-rule { width: 1px; height: 18px; background: #303a3b; }
 .transport-label { display: flex; gap: 7px; align-items: center; color: #83908c; font-size: 9px; font-weight: 700; letter-spacing: .08em; }
 .transport-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }
-.camera-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); grid-template-rows: repeat(2, auto); align-content: start; gap: 6px; overflow-y: auto; }
+.camera-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); grid-template-rows: repeat(2, minmax(0,1fr)); align-content: stretch; gap: 6px; overflow: hidden; }
 .camera-tile { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #080b0c; border: 1px solid #303a3b; overflow: visible; }
 .camera-tile:focus-within, .camera-tile:hover { border-color: #58665e; }
 .camera-tile.expanded { grid-column: 1 / -1; grid-row: 1 / -1; z-index: 2; }
@@ -122,7 +122,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .stream-menu { position: absolute; z-index: 10; top: 24px; right: 0; width: 144px; padding: 4px; border: 1px solid #46504d; border-radius: 4px; background: #202729; box-shadow: 0 8px 20px #0008; }
 .stream-menu button { width: 100%; display: block; padding: 9px 8px; border: 0; border-radius: 3px; background: transparent; color: #c6cecb; text-align: left; font-size: 10px; cursor: pointer; }
 .stream-menu button:hover, .stream-menu button.active { background: #2d3932; color: var(--accent); }
-.tile-video { position: relative; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #030505; }
+.tile-video { position: relative; flex: 1 1 auto; min-height: 0; width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; background: #030505; }
 .feed-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; display: block; opacity: 0; }
 .feed-image.visible { opacity: 1; }
 .tile-offline { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #77827e; font-size: 10px; letter-spacing: .015em; }
